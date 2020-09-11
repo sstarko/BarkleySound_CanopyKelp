@@ -1,0 +1,22 @@
+---
+title: "iButton 2019 Analysis"
+output: html_notebook
+---
+
+
+```{r}
+library(ggrepel)
+library(ggthemes)
+load(file="./data/2019_iButtons_by_day_1m")
+my.ylab = expression(atop(paste("Mean Daily Water Temperature, ", degree,"C"), "(+/- Min., Max.)"))
+p <- ggplot(subset(sum_by_site_1m, water %in% c("water")), mapping = aes(x = dist_in_sound, y = mean_mean_daily_temp_c)) +
+  geom_point() +
+  geom_pointrange(aes(ymin=mean_min_daily_temp_c, ymax=mean_max_daily_temp_c)) +
+  geom_smooth(method=lm) +
+   labs(y= my.ylab, x = "Distance into sound (m)")
+  
+p + theme_classic()
+
+
+
+```
