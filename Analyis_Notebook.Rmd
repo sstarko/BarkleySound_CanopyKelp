@@ -41,3 +41,71 @@ ggplot(nutrients.means.4m, aes(x = dist_sound_km,y=mean_no3)) + geom_point()
 
 ```
 
+## Macro and Nereo Health and Growth
+
+```{r}
+load(file="./data/Health_and_Growth_2020.RData")
+
+p1<- ggplot(macro_health, aes(x = dist_sound_km, y = mean_gray_value)) +
+  ylim(100,200) + xlim (3,15) +
+  labs(x = "", y = expression(paste("Blade bleaching index"))) +
+  geom_point() +
+  theme_classic() +
+  geom_smooth(method="lm", alpha = 0.15, color = "black") +
+  theme(legend.position = "none") +
+  theme (plot.margin=unit(c(0.5,0,0,1), "cm"))
+
+#example model output for these data
+library(lme4)
+mixed.lmer1 <- lmer(mean_gray_value ~ dist_sound_km + (1|site/ind_no), data = macro_health)
+
+p2 <- ggplot(macro_growth, aes(x = dist_sound_km, y = net_blade_growth)) +
+  labs(x = "", y = expression(paste("Net blade growth/day (cm)"))) +
+  xlim (3,15) +
+  geom_point() +
+  theme_classic() +
+  geom_hline(yintercept=0, linetype = "dashed", color = "darkgray") +
+  geom_smooth(method="lm", alpha = 0.15, color = "black") +
+  theme(legend.position = "none") +
+  theme (plot.margin=unit(c(0.5,0,0,1), "cm"))
+
+p3 <- ggplot(macro_growth, aes(x = dist_sound_km, y = frond_growth)) +
+  labs(x = "", y = expression(paste("Frond growth/day (cm)"))) +
+  xlim (3,15) +
+  geom_point() +
+  theme_classic() +
+  geom_hline(yintercept=0, linetype = "dashed", color = "darkgray") +
+  geom_smooth(method="lm", alpha = 0.15, color = "black") +
+  theme(legend.position = "none") +
+  theme (plot.margin=unit(c(0.5,0,0,1), "cm"))
+
+p4 <- ggplot(nereo_health, aes(x = dist_sound_km, y=blade_no)) +
+  labs(x = "", y = "Number of blades") +
+  xlim (3,15) +
+  geom_point() +
+  theme_classic() +
+  theme(legend.position = "none") +
+  theme (plot.margin=unit(c(0.5,0,0,1), "cm"))
+
+p5 <- ggplot(nereo_health, aes(x = dist_sound_km, y=mean_blade_len)) +
+  labs(x = "Distance from open coast (km)", y ="Mean blade length (cm)") +
+  geom_point() +
+  xlim (3,15) +
+  theme_classic() +
+  geom_smooth(method="lm", alpha = 0.15, color = "black") +
+  theme(legend.position = "none") +
+  theme (plot.margin=unit(c(0.5,0,0,1), "cm"))
+
+#make blank plot for 6th panel
+p6 <- frame()
+
+#final plot
+library(ggpubr)
+figure <- ggarrange(p1, p3, p2, p4, p5, p6, labels = letters[seq( from = 1, to = 6 )],ncol = 3, nrow = 2)
+figure
+ggsave("health_growth_fig.pdf", width = 9, height = 6)
+
+
+
+```
+
