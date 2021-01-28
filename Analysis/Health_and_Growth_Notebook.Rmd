@@ -1,50 +1,18 @@
 ---
-title: "iButton 2019 Analysis"
+title: "Health and Growth"
 output: html_notebook
+editor_options: 
+  chunk_output_type: inline
 ---
-
-## 2019 iButton Data
-```{r}
-library(ggrepel)
-library(ggthemes)
-library(tidyverse)
-load(file="./data/2019_iButtons_by_day_1m.RData")
-my.ylab = expression(atop(paste("Mean Daily Water Temperature, ", degree,"C"), "(+/- Min., Max.)"))
-p <- ggplot(subset(sum_by_site_1m, water %in% c("water")), mapping = aes(x = dist_in_sound, y = mean_mean_daily_temp_c)) +
-  geom_point() +
-  geom_pointrange(aes(ymin=mean_min_daily_temp_c, ymax=mean_max_daily_temp_c)) +
-  geom_smooth(method=lm) +
-   labs(y= my.ylab, x = "Distance into sound (m)")
-  
-p + theme_classic()
-
-
-
-```
-
-## 1980s Druehl NO3 Data
-
-```{r}
-load(file="./data/Druehl_no3_1980.RData")
-
-
-druehl_nutrients_1980_means <- druehl_nutrients_1980 %>% group_by(site, depth, month) %>% summarize(mean_no3 = mean(no3, na.rm = T))
-
-druehl_nutrients_1980_means <- druehl_nutrients_1980_means  %>% 
-  left_join(sites, by = "site")
-druehl_nutrients_1980_means$dist_sound_km <- druehl_nutrients_1980_means$dist_sound/1000
-
-nutrients.means.0m <- filter(druehl_nutrients_1980_means, depth == 0)
-nutrients.means.4m <- filter(druehl_nutrients_1980_means, depth == 4)
-
-ggplot(nutrients.means.4m, aes(x = dist_sound_km,y=mean_no3)) + geom_point()
-
-```
 
 ## Macro and Nereo Health and Growth
 
 ```{r}
-load(file="./data/Health_and_Growth_2020.RData")
+<<<<<<< HEAD:Analysis/Health_and_Growth_Notebook.Rmd
+load(file="../data/health_growth/Health_and_Growth_2020.RData")
+=======
+load(file="./data/health_growth/Health_and_Growth_2020.RData")
+>>>>>>> 7cb01862aaceedd3dc7ce4488d6b269700f859d2:Analysis/Health_and_Growth_Notebook.Rmd
 
 p1<- ggplot(macro_health, aes(x = dist_sound_km, y = mean_gray_value)) +
   ylim(100,200) + xlim (3,15) +
@@ -57,7 +25,18 @@ p1<- ggplot(macro_health, aes(x = dist_sound_km, y = mean_gray_value)) +
 
 #example model output for these data
 library(lme4)
-mixed.lmer1 <- lmer(mean_gray_value ~ dist_sound_km + (1|site/ind_no), data = macro_health)
+library(nlme)
+mixed.lmer1 <- lmer(mean_gray_value ~ dist_sound_km + (1|site), data = macro_health)
+
+mixed.health<-lme(mean_gray_value ~ dist_sound_km, random = ~1|site/ind_no, data = macro_health)
+
+macro.health<-lm(mean_gray_value ~ dist_sound_km, data = macro_health)
+
+nereo.health<-lm(mean_blade_len ~ dist_sound_km, data = nereo_health)
+
+macro.growth<-lm(blade_length_start ~ dist_sound_km, data = macro_growth)
+
+mixed.growth1<-lme(net_blade_growth ~ dist_sound_km, random = ~1|site/tag_no, data = filter(macro_growth, net_blade_growth != "NA"))
 
 p2 <- ggplot(macro_growth, aes(x = dist_sound_km, y = net_blade_growth)) +
   labs(x = "", y = expression(paste("Net blade growth/day (cm)"))) +
@@ -103,9 +82,8 @@ p6 <- frame()
 library(ggpubr)
 figure <- ggarrange(p1, p3, p2, p4, p5, p6, labels = letters[seq( from = 1, to = 6 )],ncol = 3, nrow = 2)
 figure
-ggsave("health_growth_fig.pdf", width = 9, height = 6)
+ggsave("../figures/health_growth_fig.pdf", width = 9, height = 6)
 
 
 
 ```
-
