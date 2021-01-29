@@ -9,10 +9,14 @@ editor_options:
 
 ```{r}
 <<<<<<< HEAD:Analysis/Health_and_Growth_Notebook.Rmd
+<<<<<<< HEAD:Analysis/Health_and_Growth_Notebook.Rmd
 load(file="../data/health_growth/Health_and_Growth_2020.RData")
 =======
 load(file="./data/health_growth/Health_and_Growth_2020.RData")
 >>>>>>> 7cb01862aaceedd3dc7ce4488d6b269700f859d2:Analysis/Health_and_Growth_Notebook.Rmd
+=======
+load(file="./data/health_growth/Health_and_Growth_2020.RData")
+>>>>>>> origin/master:Analysis/Health_and_Growth_Notebook.Rmd
 
 p1<- ggplot(macro_health, aes(x = dist_sound_km, y = mean_gray_value)) +
   ylim(100,200) + xlim (3,15) +

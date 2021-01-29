@@ -12,8 +12,13 @@ editor_options:
 library(ggrepel)
 library(ggthemes)
 library(tidyverse)
+<<<<<<< HEAD
 load(file="../data/spatial_env_data/2019_iButtons_by_day_1m.RData")
 my.ylab = expression(atop(paste("Mean Sea Surface Temperature, ", degree,"C")))
+=======
+load(file="./data/spatial_env_data/2019_iButtons_by_day_1m.RData")
+my.ylab = expression(atop(paste("Mean Daily Water Temperature, ", degree,"C"), "(+/- Min., Max.)"))
+>>>>>>> origin/master
 p <- ggplot(subset(sum_by_site_1m, water %in% c("water")), mapping = aes(x = dist_in_sound, y = mean_mean_daily_temp_c)) +
   geom_smooth(method=lm, color = "black") +
   geom_point() +
