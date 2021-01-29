@@ -1,0 +1,54 @@
+---
+title: "ROV analyses"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(cowplot)
+library(MASS)
+
+#Import ROV data set
+ROV<-read_excel("../data/ROV/ROV_data_2020.xlsx", sheet = "ROV_data_2020")
+ROV.dist <- read_csv("../data/ROV/ROV_data_2020_distance.csv")
+ROV.urch <- read_excel("../data/ROV/ROVUrchinScores.xlsx")
+ROV.urch$rov_site_id <- as.character(ROV.urch$rov_site_id)
+#Remove observation 41 because it was redone later
+ROV2<-left_join(ROV.dist, ROV, by = "rov_site_id")
+ROV.ran <- filter(ROV2, type == "random")
+ggplot(ROV.ran, aes(x = NEAR_DIST_KM, y = seaweed_lower_m_adjusted*-1, color = substrate, fill = substrate))+
+  geom_bar(stat= "identity",width =0.1)+
+  scale_color_manual(values = c("#595959", "#C5AC92"))+
+  scale_fill_manual(values = c("#595959", "#C5AC92"))+
+  theme(panel.border = element_rect(colour = "black", fill=NA, size=2))+
+  xlim(c(4,15))
+
+ROV.ran2<-full_join(ROV.ran, ROV.urch)
+p1<-ggplot(ROV.ran2, aes(x = NEAR_DIST_KM, y = seaweed_lower_m_adjusted*-1, color = group, fill = group))+
+  geom_bar(stat= "identity",width =0.1)+
+  scale_color_manual(values = c("#595959", "#C5AC92"))+
+  scale_fill_manual(values = c("#595959", "#C5AC92"))+
+  theme(panel.border = element_rect(colour = "black", fill=NA, size=2))+
+  xlim(c(2,15))
+
+
+p2<-ggplot(ROV.ran2, aes(x = NEAR_DIST_KM, y = Urchin_score, color = group2, fill = group2))+
+  geom_point(stat= "identity",width =0.1)+
+  stat_smooth()+
+  #scale_color_manual(values = c("#595959", "#C5AC92"))+
+  #scale_fill_manual(values = c("#595959", "#C5AC92"))+
+  theme(panel.border = element_rect(colour = "black", fill=NA, size=2))+
+  xlim(c(2,15))+
+  ylim(c(-1.5,3.5))
+
+plot_grid(p1,p2, ncol = 1)
+
+ROV.ran2$Urchin_score <- as.ordered(ROV.ran2$Urchin_score)
+kruskal.test(Urchin_score ~ group2, data = ROV.ran2)
+
+```
+
