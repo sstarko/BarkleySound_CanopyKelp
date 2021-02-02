@@ -84,6 +84,29 @@ summary(n3)
 
 ```
 
+```{r}
+Both_2007 <- filter(Both2, Year == "2007")
+Both_2018 <- filter(Both2, Year == "2018")
+colnames(Both_2018) <- c("Seg.2","HubDist2.2","Presence.2", "Year.2")
+BothCom<-cbind(Both_2007, Both_2018)
+BothCom$Change<-(as.numeric(BothCom$Presence) - as.numeric(BothCom$Presence.2))
+BothCom2 <- filter(BothCom, Change > -1 )
+
+glm(Change ~ HubDist2, data = BothCom2, family = "binomial") %>% summary()
+
+
+ggplot(BothCom2, aes(y = Change, x = HubDist2))+
+  geom_point(cex = 3)+
+  theme_cowplot()+
+  stat_smooth(method="bayesglm", method.args=list(family=binomial), col="black")  +
+  scale_color_manual(values=c(makeTransparent("#2165AC"), makeTransparent("#B63238")))+ 
+  #theme(legend.position = "none")+
+  ylab(expression(paste("Probability of extirpation")))+
+  xlab("Distance from edge mouth (km)")
+
+```
+
+
 ##Nereocystis only
 ```{r}
 
@@ -144,6 +167,34 @@ summary(n3)
 
 ```
 
+```{r}
+Nereo2_2007.2 <- Nereo2_2007
+
+Nereo2_2018.2 <- Nereo2_2018
+colnames(Nereo2_2018.2) <- c("Segment_number.2", "HubDist2.2", "Presence.2", "Year.2")
+
+Nereo3 <- cbind(Nereo2_2007.2, Nereo2_2018.2)
+Nereo4 <- Nereo3 %>% filter(Presence==1)
+
+Nereo4$Change <- Nereo4$Presence - Nereo4$Presence.2
+
+
+
+glm(Change ~ HubDist2, data = Nereo4, family = "binomial") %>% summary()
+
+
+NereoChange <- ggplot(Nereo4, aes(y = Change, x = HubDist2))+
+  geom_point(cex = 3)+
+  theme_cowplot()+
+  stat_smooth(method="bayesglm", method.args=list(family=binomial), col="black")  +
+  scale_color_manual(values=c(makeTransparent("#2165AC"), makeTransparent("#B63238")))+ 
+  #theme(legend.position = "none")+
+  ylab(expression(paste("Probability of extirpation")))+
+  xlab("Distance from edge mouth (km)")
+
+NereoChange
+```
+
 ##Macrocystis only
 ```{r}
 
@@ -194,6 +245,35 @@ AICctab(m0,m1,m2,m3,m4,m3a, weights = TRUE)
 summary(m3)
 summary(m3a)
 ```
+
+```{r}
+Macro2_2007.2 <- Macro2_2007
+Macro2_2018.2 <- Macro2_2018
+
+colnames(Macro2_2018.2) <- c("Segment_number.2", "HubDist2.2", "Presence.2", "Year.2")
+
+Macro3 <- cbind(Macro2_2007.2, Macro2_2018.2)
+Macro4 <- Macro3 %>% filter(Presence==1)
+
+Macro4$Change <- Macro4$Presence - Macro4$Presence.2
+
+
+
+glm(Change ~ HubDist2, data = Nereo4, family = "binomial") %>% summary()
+
+
+MacroChange <- ggplot(Macro4, aes(y = Change, x = HubDist2))+
+  geom_point(cex = 3)+
+  theme_cowplot()+
+  stat_smooth(method="bayesglm", method.args=list(family=binomial), col="black")  +
+  scale_color_manual(values=c(makeTransparent("#2165AC"), makeTransparent("#B63238")))+ 
+  #theme(legend.position = "none")+
+  ylab(expression(paste("Probability of extirpation")))+
+  xlab("Distance from edge mouth (km)")
+
+
+```
+
 
 ##Load in 2013-2016 remote sensing kelp data
 
@@ -292,6 +372,54 @@ i4<-glmer(Kelp_bin~ Year+Distance + (1|Segment) , data = d2014_2018, family = "b
 AICtab(i2,i3,i4,i0,i1, weights = TRUE)
 
 AICcmodavg::AICc(i1)
+
+```
+
+
+```{r}
+
+#Import data
+long <- read_csv("../data/kelp_comparisons/Segment_All_LongCombined.csv")
+
+distance <- read_csv("../data/kelp_comparisons/BarkleySoundAllData_Distance.csv")
+
+distance2 <- tibble(Segment = distance$Segment, Dist = distance$NEAR_DIST_KM)
+
+long2 <- left_join(long, distance2, by = "Segment")
+
+#Remove NAs
+long2 <- long2 %>% drop_na()
+long2$Segment <- as.factor(long2$Segment)
+
+long3<- long2 %>% filter(Dist > 8)
+long3 
+
+long3$Dummy <- 1
+long3$Year <- as.factor(long3$Year)
+
+long.sum <- long3 %>% group_by(Year) %>%
+  summarise(avg = mean(Kelp_bin), SampleSize = sum(Dummy))
+
+#Confidence intervals with Wilson method for sample occurrence
+long.sum$upper <- c(1, 0.98, 0.91, 0.27, 0.41, 0.07, 0.16)
+long.sum$lower <- c(1, 0.89, 0.81, 0.12, 0.32, 0.002,0.08)
+
+trend<-ggplot(long.sum, aes(x = as.numeric(Year), y = avg))+
+  geom_point(size = 3)+
+  geom_line(size = 0.5)+
+  theme_cowplot()+
+  ylim(c(0,1))+
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.3)+
+  ylab("Proportion of Segments")+
+  xlab("Year")+
+  scale_x_continuous(breaks=seq(0,7,1))
+
+mod.bin<-bayesglm(Kelp_bin ~ Year, data = long3, family = "binomial")
+
+summary(mod.bin)
+
+pdf(file="../figures/Trend.pdf", width = 8, height = 4)
+trend
 
 ```
 

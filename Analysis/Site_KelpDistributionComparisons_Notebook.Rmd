@@ -108,14 +108,16 @@ d_combined <- d_combined %>% filter(Macrocystis_before == 1)
 
 d_combined$Change <- (d_combined$Macrocystis_before - d_combined$Macrocystis_after)
 
-ggplot(d_combined, aes(y = Change, x = DistSound_km.x))+
+KelpBedChange<- ggplot(d_combined, aes(y = Change, x = DistSound_km.x))+
   geom_point(cex = 3)+
   theme_cowplot()+
   stat_smooth(method="bayesglm", method.args=list(family=binomial), col="black")  +
   scale_color_manual(values=c(makeTransparent("#2165AC"), makeTransparent("#B63238")))+ 
   #theme(legend.position = "none")+
-  ylab(expression(paste("Probability of", " ",italic("Macrocystis"))))+
+  ylab(expression(paste("Probability of extirpation")))+
   xlab("Distance from edge mouth (km)")
+
+KelpBedChange
 
 glmer(Change ~ DistSound_km.x + (1|Site) , data = d_combined, family = "binomial", control = glmerControl(optimizer = "optimx", calc.derivs = FALSE,optCtrl = list(method = "nlminb", starttests = FALSE, kkt = FALSE))) %>% summary()
 
