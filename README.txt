@@ -28,7 +28,7 @@ temporal_env_data - Time series temperature data.
 tides_2015_2016 - Tide observations used to separate submerged from emergent rock temperatures
 
 
-Note that not all datasheets in these folders were directly used alongside the R script. Some files were only used for ArcGIS mapping.
+Note that not all datasheets in these folders were directly used alongside the R scripts. Some files were only used for ArcGIS mapping.
 
 
 For any questions regarding these data, please contact Sam Starko (samuel.starko@gmail.com)
